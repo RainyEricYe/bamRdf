@@ -221,7 +221,8 @@ void show( SeqLib::BamWriter &w, ostream &outRdf, vector<SeqLib::BamReader> &vec
         }
     }
 
-    outRdf << vFam[0].chr_start_end << "\t" << total_read_n << endl;
+    if ( ok )
+        outRdf << vFam[0].chr_start_end << "\t" << total_read_n << endl;
 }
 
 void add2mapRegionFamV( ifstream *vecF, ulong &i,  mRegFamV &rfmap, SeqLib::BamHeader &head )
