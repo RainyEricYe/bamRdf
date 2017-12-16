@@ -153,7 +153,7 @@ bool add2mapRegionBamRecordV(const BamRecord &ra, const BamRecord &rb, mRegBrV &
     GenomicRegion gra(ra.ChrID(), ra.Position(), ra.Position() + ra.Length() - 1);
     GenomicRegion grb(rb.ChrID(), rb.Position(), rb.Position() + rb.Length() - 1);
 
-    if ( !grc.CountOverlaps(gra) && !grc.CountOverlaps(grb) )
+    if ( grc.size() > 0 && !grc.CountOverlaps(gra) && !grc.CountOverlaps(grb) )
         return false;
 
     // proper pair and orientation
