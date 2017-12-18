@@ -47,7 +47,7 @@ void usage(char *prog)
         "Contact: yerui <yerui@connect.hku.hk>\n\n"
         "Usage: " << prog << "  \n\n"
         "       -t [s]    target region file (bed)\n"
-        "       -i [s]    input original bam file\n"
+        "       -i [s]    input original bam file which sorted by Qname\n"
         "       -o [s]    output bam file [out.bam]\n"
         "       -d [i]    discard reads family which size < [int]  [0]\n"
         "       -b [i]    memory control: N pairs of reads as a block [3000000]\n"
@@ -77,6 +77,7 @@ int main( int argc, char** argv ) {
     }
 
     if ( blockSize < 50000 )  blockSize = 50000;
+    if ( inBam.size() == 0 ) cerr << "-i inBam is needed" << endl, exit(1);
 
     SeqLib::BamReader r;
     SeqLib::BamWriter w(SeqLib::BAM);
@@ -141,6 +142,8 @@ int main( int argc, char** argv ) {
         cerr << "merge " << part << " blocks..." << endl;
         mergeBlockFiles(w, outRdf, outBam, part, head, rdfSizeCut);
     }
+
+    exit(0);
 }
 
 //~~~~~~~~~~~~~~
