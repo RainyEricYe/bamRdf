@@ -14,7 +14,6 @@ using namespace std;
 
 class Fam;
 typedef map<GenomicRegion, vector<BamRecord> > mRegBrV;
-typedef GenomicRegionCollection<GenomicRegion> GRC;
 typedef map<GenomicRegion, vector<Fam> > mRegFamV;
 typedef unsigned long ulong;
 
