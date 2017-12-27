@@ -10,7 +10,11 @@
 using namespace SeqLib;
 using namespace std;
 
+#define PROGRAM "bamRdf"
 #define VERSION "v1.0"
+#define AUTHORS "yerui"
+#define CONTACT "yerui@connect.hku.hk"
+#define COMMENT "(cluster read pair by positon)"
 
 class Fam;
 typedef map<GenomicRegion, vector<BamRecord> > mRegBrV;
@@ -38,19 +42,23 @@ void add2mapRegionFamV( ifstream *vecF, ulong &i, mRegFamV &rfmap, SeqLib::BamHe
 void mergeBlockFiles(SeqLib::BamWriter &w, ofstream &outRdf, string &outBam, ulong &part, BamHeader &head, ulong &rdfSizeCut );
 void printBlockFile(string &outBam, ulong &part, mRegBrV &h, const BamHeader &head );
 
-void usage(char *prog)
+void usage()
 {
     cout <<
-        "Program: bamRdf (cluster read pair by positon)\n"
+        "Program: " << PROGRAM << " " << COMMENT << "\n"
         "Version: " << VERSION << "\n"
-        "Contact: yerui <yerui@connect.hku.hk>\n\n"
-        "Usage: " << prog << "  \n\n"
+        "Authors: " << AUTHORS << "\n"
+        "Contact: " << CONTACT << "\n\n"
+
+        "Usage: " << PROGRAM << " -i in.bam\n\n"
+
         "       -t [s]    target region file (bed)\n"
         "       -i [s]    input original bam file which sorted by Qname\n"
         "       -o [s]    output bam file [out.bam]\n"
         "       -d [i]    discard reads family which size < [int]  [0]\n"
         "       -b [i]    memory control: N pairs of reads as a block [3000000]\n"
-        "       -h        help\n\n";
+        "       -h        help\n"
+        "\n";
 }
 
 int main( int argc, char** argv ) {
@@ -71,12 +79,12 @@ int main( int argc, char** argv ) {
             case 'd': rdfSizeCut = atoi(optarg);  break;
             case 'b': blockSize = atoi(optarg);   break;
             case 'h':
-            default:  usage(argv[0]);             exit(1);
+            default:  usage();                    exit(1);
         }
     }
 
     if ( blockSize < 50000 )  blockSize = 50000;
-    if ( inBam.size() == 0 ) cerr << "-i inBam is needed" << endl, exit(1);
+    if ( inBam.size() == 0 ) cerr << "-i in.bam is needed" << endl, usage(), exit(1);
 
     SeqLib::BamReader r;
     SeqLib::BamWriter w(SeqLib::BAM);
