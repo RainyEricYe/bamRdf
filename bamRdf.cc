@@ -11,7 +11,7 @@ using namespace SeqLib;
 using namespace std;
 
 #define PROGRAM "bamRdf"
-#define VERSION "v1.0"
+#define VERSION "v1.1"
 #define AUTHORS "yerui"
 #define CONTACT "yerui@connect.hku.hk"
 #define COMMENT "(cluster read pair by positon)"
@@ -112,6 +112,8 @@ int main( int argc, char** argv ) {
     r.GetNextRecord(ra);
 
     while ( r.GetNextRecord(rb) ) {
+        if ( rb.SecondaryFlag() || rb.Interchromosomal() ) continue;
+
         if ( ra.Qname() == rb.Qname() ) {
             if ( add2mapRegionBamRecordV(ra, rb, h, grc) ) {
                 cnt++;
