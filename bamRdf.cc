@@ -11,7 +11,7 @@ using namespace SeqLib;
 using namespace std;
 
 #define PROGRAM "bamRdf"
-#define VERSION "v1.1"
+#define VERSION "v1.2"
 #define AUTHORS "yerui"
 #define CONTACT "yerui@connect.hku.hk"
 #define COMMENT "(cluster read pair by positon)"
@@ -31,7 +31,7 @@ class Fam {
         ~Fam(){};
 };
 
-bool add2mapRegionBamRecordV(const BamRecord &ra, const BamRecord &rb, mRegBrV &h, const GRC &grc);
+bool add2mapRegionBamRecordV(const BamRecord &ra, const BamRecord &rb, mRegBrV &h, const GRC &grc, bool mitoMode);
 inline int32_t true_start(const BamRecord &a);
 inline int32_t true_end(const BamRecord &a);
 inline string itoa(ulong &n) { ostringstream s; s << n; return s.str(); }
@@ -57,6 +57,8 @@ void usage()
         "       -o [s]    output bam file [out.bam]\n"
         "       -d [i]    discard reads family which size < [int]  [0]\n"
         "       -b [i]    memory control: N pairs of reads as a block [3000000]\n"
+        "       -m        mitochondrial mode. allow read start < 0 [false]\n"
+        "       -v        version\n"
         "       -h        help\n"
         "\n";
 }
@@ -69,15 +71,18 @@ int main( int argc, char** argv ) {
 
     ulong blockSize(3000000);
     ulong cnt(0); // pairs of read
+    bool mitoMode(false);
 
     int c;
-    while ( (c=getopt(argc,argv,"t:i:o:r:d:b:h")) != -1 ) {
+    while ( (c=getopt(argc,argv,"t:i:o:r:d:b:mvh")) != -1 ) {
         switch (c) {
             case 't': target_f = optarg;          break;
             case 'i': inBam    = optarg;          break;
             case 'o': outBam   = optarg;          break;
             case 'd': rdfSizeCut = atoi(optarg);  break;
             case 'b': blockSize = atoi(optarg);   break;
+            case 'm': mitoMode = true;            break;
+            case 'v': cerr << VERSION << endl;    exit(1);
             case 'h':
             default:  usage();                    exit(1);
         }
@@ -115,7 +120,7 @@ int main( int argc, char** argv ) {
         if ( rb.SecondaryFlag() || rb.Interchromosomal() ) continue;
 
         if ( ra.Qname() == rb.Qname() ) {
-            if ( add2mapRegionBamRecordV(ra, rb, h, grc) ) {
+            if ( add2mapRegionBamRecordV(ra, rb, h, grc, mitoMode) ) {
                 cnt++;
                 if ( cnt == blockSize ) {
                     printBlockFile(outBam, part, h, head );
@@ -157,29 +162,33 @@ int main( int argc, char** argv ) {
 
 //~~~~~~~~~~~~~~
 
-bool add2mapRegionBamRecordV(const BamRecord &ra, const BamRecord &rb, mRegBrV &h, const GRC &grc )
+bool add2mapRegionBamRecordV(const BamRecord &ra, const BamRecord &rb, mRegBrV &h, const GRC &grc, bool mitoMode )
 {
     if ( ra.ChrID() != rb.ChrID() or !ra.MappedFlag() or !rb.MappedFlag() )
         return false;
 
-    GenomicRegion gra(ra.ChrID(), ra.Position(), ra.Position() + ra.Length() - 1);
-    GenomicRegion grb(rb.ChrID(), rb.Position(), rb.Position() + rb.Length() - 1);
+    GenomicRegion gra( ra.ChrID(), ra.Position(), ra.PositionEnd() );
+    GenomicRegion grb( rb.ChrID(), rb.Position(), rb.PositionEnd() );
 
     if ( grc.size() > 0 && !grc.CountOverlaps(gra) && !grc.CountOverlaps(grb) )
+        return false;
+
+    // mitochondrial mode which allow true start < 0
+    if ( !mitoMode && (true_start(ra) <= 0 || true_start(rb) <= 0) )
         return false;
 
     // proper pair and orientation
     if ( ra.ReverseFlag() && !rb.ReverseFlag()
             && true_start(rb) <= true_start(ra)
-            && true_start(rb) > 0 ) {
+       ) {
 
         GenomicRegion key( ra.ChrID(), true_start(rb), true_end(ra) );
         h[key].push_back(rb);
         h[key].push_back(ra);
     }
     else if ( rb.ReverseFlag() && !ra.ReverseFlag()
-            && true_start(ra) <= true_start(rb)
-            && true_start(ra) > 0 ) {
+                 && true_start(ra) <= true_start(rb)
+            ) {
 
         GenomicRegion key( ra.ChrID(), true_start(ra), true_end(rb) );
         h[key].push_back(ra);
