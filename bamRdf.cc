@@ -11,7 +11,7 @@ using namespace SeqLib;
 using namespace std;
 
 #define PROGRAM "bamRdf"
-#define VERSION "v1.2"
+#define VERSION "v1.3"
 #define AUTHORS "yerui"
 #define CONTACT "yerui@connect.hku.hk"
 #define COMMENT "(cluster read pair by positon)"
@@ -167,13 +167,13 @@ bool add2mapRegionBamRecordV(const BamRecord &ra, const BamRecord &rb, mRegBrV &
     if ( ra.ChrID() != rb.ChrID() or !ra.MappedFlag() or !rb.MappedFlag() )
         return false;
 
-    GenomicRegion gra( ra.ChrID(), ra.Position(), ra.PositionEnd() );
-    GenomicRegion grb( rb.ChrID(), rb.Position(), rb.PositionEnd() );
+    GenomicRegion gra = ra.AsGenomicRegion();
+    GenomicRegion grb = rb.AsGenomicRegion();
 
     if ( grc.size() > 0 && !grc.CountOverlaps(gra) && !grc.CountOverlaps(grb) )
         return false;
 
-    // mitochondrial mode which allow true start < 0
+    // mitochondrial mode which allow true start <= 0
     if ( !mitoMode && (true_start(ra) <= 0 || true_start(rb) <= 0) )
         return false;
 
