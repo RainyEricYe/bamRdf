@@ -11,7 +11,7 @@ using namespace SeqLib;
 using namespace std;
 
 #define PROGRAM "bamRdf"
-#define VERSION "v1.3"
+#define VERSION "v1.4"
 #define AUTHORS "yerui"
 #define CONTACT "yerui@connect.hku.hk"
 #define COMMENT "(cluster read pair by positon)"
@@ -58,6 +58,7 @@ void usage()
         "       -d [i]    discard reads family which size < [int]  [0]\n"
         "       -b [i]    memory control: N pairs of reads as a block [3000000]\n"
         "       -m        mitochondrial mode. allow read start < 0 [false]\n"
+        "       -n [i]    limit number of read pairs [0, unlimited]\n"
         "       -v        version\n"
         "       -h        help\n"
         "\n";
@@ -68,19 +69,22 @@ int main( int argc, char** argv ) {
     string target_f(""), inBam(""), outBam("out.bam");
     ulong rdfSizeCut(0);
     ulong part(0);
+    ulong ReadPairNum(0);
+    ulong cntReadPairNum(0);
 
     ulong blockSize(3000000);
     ulong cnt(0); // pairs of read
     bool mitoMode(false);
 
     int c;
-    while ( (c=getopt(argc,argv,"t:i:o:r:d:b:mvh")) != -1 ) {
+    while ( (c=getopt(argc,argv,"t:i:o:r:d:b:n:mvh")) != -1 ) {
         switch (c) {
             case 't': target_f = optarg;          break;
             case 'i': inBam    = optarg;          break;
             case 'o': outBam   = optarg;          break;
             case 'd': rdfSizeCut = atoi(optarg);  break;
             case 'b': blockSize = atoi(optarg);   break;
+            case 'n': ReadPairNum = atoi(optarg); break;
             case 'm': mitoMode = true;            break;
             case 'v': cerr << VERSION << endl;    exit(1);
             case 'h':
@@ -128,6 +132,9 @@ int main( int argc, char** argv ) {
                     part++;
                     cnt = 0;
                 }
+
+                cntReadPairNum++;
+                if ( cntReadPairNum == ReadPairNum ) break;
             }
 
             if ( !r.GetNextRecord(ra) ) break;
