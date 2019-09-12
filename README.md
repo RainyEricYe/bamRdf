@@ -1,7 +1,7 @@
 # Introduction
 bamRdf is a software which clusters reads of bam file into read families according to chromosome, start, and end position.
 
-# preparation
+# Preparation
 htslib(https://github.com/samtools/htslib)
 SeqLib(https://github.com/walaj/SeqLib)
 
