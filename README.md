@@ -9,7 +9,10 @@ SeqLib(https://github.com/walaj/SeqLib)
     wget https://github.com/RainyEricYe/bamRdf.git
     cd bamRdf
     make
-
+# Citation
+    Rui Ye et al. LFMD: detecting low-frequency mutations in genome sequencing data without molecular tags.
+    https://www.biorxiv.org/content/10.1101/617381v9
+    
 # Usage
     Program: bamRdf (cluster read pair by positon)
     Version: v1.4
