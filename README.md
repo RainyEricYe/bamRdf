@@ -6,7 +6,7 @@ htslib(https://github.com/samtools/htslib)
 SeqLib(https://github.com/walaj/SeqLib)
 
 # Install
-    wget https://github.com/RainyEricYe/bamRdf.git
+    git clone https://github.com/RainyEricYe/bamRdf.git
     cd bamRdf
     make
 # Citation
